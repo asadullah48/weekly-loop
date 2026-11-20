@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "preflightkit"
+version = "0.1.0"
+description = "Probe an AI agent sandbox's real capabilities and assert requirements against them"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Asadullah Shafique" }]
+dependencies = []
+
+[project.scripts]
+preflight = "preflightkit.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
