@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "skillscope"
+version = "0.1.0"
+description = "Bundle-level checks for folders of Agent Skills: trigger collisions, broken links, duplicate names, token budget."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Asadullah Shafique" }]
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest>=7"]
+
+[project.scripts]
+skillscope = "skillscope.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+skillscope = ["data/*.txt"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

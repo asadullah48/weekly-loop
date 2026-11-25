@@ -6,9 +6,18 @@ An automated weekly experiment. Every Tuesday a loop looks at GitHub Trending an
 
 | Week | Project | Folder |
 |---|---|---|
+| 2026-11-24 | SkillScope | [2026-11-24/](2026-11-24/) |
 | 2026-11-17 | PreflightKit | [2026-11-17/](2026-11-17/) |
 
 ## Status
+
+### 2026-11-24 — SkillScope
+
+- **VERIFIED** (automated run, Linux, Python 3.13): 62 passed from a clean venv install, tests run outside the source tree; README outputs re-captured from the installed CLI.
+- **REPORTED**: an independent checker found 13 demonstrated bugs (mostly frontmatter parsing and link detection), all fixed with regression tests. See [progress.md](progress.md).
+- **PROPOSED**: the collision threshold (0.3) is useful on real bundles; Windows support (not run there yet).
+
+### 2026-11-17 — PreflightKit
 
 - **VERIFIED** (run by hand on Windows 11, Python via uv, fresh isolated env, tests run from a different folder, 2026-11-20):
   - PreflightKit test suite, Windows 11, Python 3.13.9: 25 passed, 1 skipped. The skip is `test_probe_path_readonly`, which needs a POSIX non-root user. Its skip condition was fixed in this commit; before the fix it failed on Windows because `os.geteuid()` does not exist there.

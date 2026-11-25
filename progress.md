@@ -2,6 +2,64 @@
 
 One entry per weekly run. Newest first.
 
+## 2026-11-24 — SkillScope
+
+**Continuity check:** Week 3. The Gmail search for `subject:"Weekly Loop Project"` found one earlier run, 2026-11-17 (PreflightKit, main inspiration sherlock-project/sherlock). This repo's log also records a week 1 run on 2026-11-10 (agentscan v0.2.0), which has no matching email. None of this week's trending repos were used in earlier weeks, and this week's idea is not a repeat. The repo README noted that the 11-17 trending list was probably stale. This week's fetch was fresh: the page showed "stars today" counts and a completely different top 5.
+
+**Trending repos this week (top 5, language-agnostic, from github.com/trending, fetched 2026-11-24):**
+
+| Repo | Language | Stars | Description |
+|---|---|---|---|
+| elementalsouls/Claude-BugHunter | Python | 15,897 | Claude Code skill bundle for bug hunting and red-team work: 82 skills, 15 slash commands |
+| obra/superpowers | Shell | 323,660 | An agentic skills framework and software development methodology |
+| HKUDS/CLI-Anything | Python | 62,021 | Making all software agent-native through CLIs |
+| jingyaogong/minimind | Python | 68,112 | Train your own 64M LLM from scratch in 2 hours |
+| cursor/plugins | TypeScript | 18,076 | Cursor plugin specification and official plugins |
+
+**Synthesized idea: SkillScope (`skillscope`).** A zero-dependency Python CLI that checks a whole folder of Agent Skills (SKILL.md) at once:
+- `collisions`: pairs of skills whose descriptions overlap enough that an agent may pick the wrong one;
+- `check`: 11 rules, covering spec frontmatter rules plus duplicate names and broken relative links;
+- `budget`: estimated tokens loaded at startup for the whole folder, and each skill's body cost.
+
+Why this gap: three of the five repos ship skills, skill frameworks or plugin specs, and skill bundles are getting big (82 skills in one repo). Going by their descriptions, none of them compares skills with each other. Prior art, stated honestly: the Agent Skills spec has an official single-skill validator, `skills-ref validate`. SkillScope overlaps with it on frontmatter rules. What it adds is the bundle view. Stack rule: 3 of the 5 are Python, so it is a Python CLI.
+
+**What got built (2026-11-24/scaffold/):**
+- Installable package `skillscope`: setuptools, src layout, standard library only, MIT.
+- The stopword list ships as package data (`data/stopwords.txt`), and the installed wheel was checked to contain it. This guards against the earlier "data file not packaged" crash.
+- A strict frontmatter parser for the YAML subset that SKILL.md files use, written for this project.
+- A demo bundle with deliberate mistakes.
+- 62 pytest tests.
+
+**VERIFIED:** clean venv, tests copied outside the source tree and run against the installed package: 62 passed (Linux, Python 3.13). Every command and output shown in the scaffold README was re-captured from the installed CLI, run from another folder. Exit codes: check 1, collisions 1, budget 0, and 2 for a bad path or a bad threshold.
+
+**Checker (independent subagent, fresh read, its own venv on Python 3.13 and 3.11, adversarial inputs):** it confirmed the original packaging, the 42 tests passing at the time, character-exact README output, and no crashes. It also found real bugs, all fixed with a regression test each:
+1. An indented `---` inside a block scalar ended the frontmatter early, so the description was cut off without any error. The closing delimiter now has to start at column 0.
+2. A quoted value followed by a `# comment` was wrongly flagged as SS001. Fixed.
+3. `description: ~` / `null` passed as valid. These are now read as missing, so SS005 fires.
+4. SS009 false errors on `my%20file.md` and `file(1).md`. Targets are now URL-decoded, and parentheses in paths are handled.
+5. SS009 flagged links inside indented code, HTML comments, ```` ```` ```` fences, and fences of mixed type. Fence character and length are now tracked; indented code and comments are skipped.
+6. SS009 missed `<angle bracket>` targets, `(title)` and `"it's"` titles, nested link text, and reference-style links. All are now detected.
+7. `str.splitlines()` also splits on form feeds and Unicode separators, which shifted line numbers and counts. Splitting now uses only `\n`, `\r\n` and `\r`.
+8. Block scalars lost paragraph breaks (`>`) and relative indentation (`|`). Now dedented correctly.
+9. The parser silently accepted uneven nested indentation, duplicate nested keys and `| text`. These now raise errors.
+10. Plural stripping missed `pdfs` and `docs` and cut `analysis` to `analysi`. Fixed: `-ss`, `-us` and `-is` words are kept.
+11. The tokenizer only understood ASCII. It now keeps Unicode words; the README notes that it works best for space-separated languages.
+12. The `budget` table header was misaligned when all paths were short. Fixed.
+13. A repo with skills under `.claude/skills/` reported "no SKILL.md files" with no explanation. The error now says how many files were skipped and to pass `.claude/skills`.
+Also from its list:
+- the SS002/SS005 messages now say "missing or empty";
+- the scaffold README no longer claims Windows works (written to be cross-platform, tested on Linux only);
+- the main README no longer claims a line-by-line spec mapping;
+- the grep in the originality claim now uses `--include='*.py'`;
+- dead code removed from conftest;
+- a `__main__` guard added;
+- `\n`/`\t` escapes decoded;
+- symlink skipping and the remaining limits documented.
+
+**Left for a future pass (logged, not fixed):** quoted keys are rejected (documented); a plain value containing `: ` is accepted although strict YAML rejects it (documented); links that leave the skill folder (`../`) are not flagged; `C:/` paths are skipped; collision scores show 2 decimals in text and 3 in JSON; the checker could not confirm star counts through the GitHub API.
+
+**Delivery:** a git push to asadullah48/weekly-loop was tried once. On failure, the fallback was to email the zip to texcotembroiderysourcinghouse@gmail.com with manual push steps.
+
 ## 2026-11-17 — PreflightKit
 
 **Continuity check:** Week 2. Week 1 (2026-11-10, agentscan v0.2.0) is not yet in this repo. The 11-17 run's Gmail search missed it.
